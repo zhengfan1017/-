@@ -25,7 +25,12 @@ export const Camera: React.FC<CameraProps> = ({ onCapture }) => {
       setShowOptions(false);
     } catch (error) {
       console.error('Error accessing camera:', error);
-      alert('无法访问摄像头，请检查权限设置');
+      const userChoice = window.confirm(
+        '无法访问摄像头。请检查：\n1. 是否已授予摄像头权限\n2. 摄像头是否被其他应用占用\n\n是否尝试使用上传图片功能？'
+      );
+      if (userChoice) {
+        fileInputRef.current?.click();
+      }
     }
   };
 
