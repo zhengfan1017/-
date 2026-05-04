@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { House, Option } from './utils/types';
-import { questions } from './utils/questions';
 
 interface AppState {
   currentQuestion: number;

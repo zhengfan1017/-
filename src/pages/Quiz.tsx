@@ -24,6 +24,10 @@ export default function Quiz() {
   const question = questions[currentQuestion];
   const progress = ((currentQuestion + 1) / questions.length) * 100;
 
+  if (!question) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden bg-gradient-to-b from-[#1a1a2e] to-[#16213e]">
       {/* 星光背景 */}
@@ -72,7 +76,7 @@ export default function Quiz() {
                 key={index}
                 onClick={() => handleAnswer(index)}
                 className="w-full py-4 px-6 bg-gradient-to-r from-[#3a3a5a] to-[#2a2a4a] text-white text-lg 
-                           hover:shadow-[0_0_20px_rgba(238,186,48,0.4)] hover:scale-[#4a4a6a] transition-all duration-300
+                           hover:shadow-[0_0_20px_rgba(238,186,48,0.4)] hover:scale-105 transition-all duration-300
                            border border-yellow-400/30 rounded-xl cursor-pointer text-left"
               >
                 {String.fromCharCode(65 + index)}. {option.text}
