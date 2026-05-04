@@ -9,6 +9,30 @@ export interface Photo {
   rotation: number;
 }
 
+const samplePhotos: Photo[] = [
+  {
+    id: '1',
+    imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop',
+    date: '2025/11/19',
+    caption: 'MAY I MEET YOU',
+    rotation: 2.3,
+  },
+  {
+    id: '2',
+    imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop',
+    date: '2025/11/18',
+    caption: 'MAY I MEET YOU',
+    rotation: -1.8,
+  },
+  {
+    id: '3',
+    imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop',
+    date: '2025/11/17',
+    caption: 'MAY I MEET YOU',
+    rotation: 3.5,
+  },
+];
+
 interface PhotoStore {
   photos: Photo[];
   addPhoto: (imageUrl: string) => void;
@@ -19,7 +43,7 @@ interface PhotoStore {
 export const usePhotoStore = create<PhotoStore>()(
   persist(
     (set) => ({
-      photos: [],
+      photos: samplePhotos,
       addPhoto: (imageUrl) => {
         const now = new Date();
         const dateStr = now.toLocaleDateString('zh-CN', {
