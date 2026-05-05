@@ -1,11 +1,10 @@
-
 import { create } from 'zustand';
 import { DogWalk } from '../types/dogWalk';
 
 interface DogWalkStore {
   dogWalks: DogWalk[];
-  addDogWalk: (dogWalk: Omit&lt;DogWalk, 'id'&gt;) =&gt; void;
-  removeDogWalk: (id: string) =&gt; void;
+  addDogWalk: (dogWalk: Omit<DogWalk, 'id'>) => void;
+  removeDogWalk: (id: string) => void;
 }
 
 const mockData: DogWalk[] = [
@@ -49,13 +48,12 @@ const mockData: DogWalk[] = [
   }
 ];
 
-export const useDogWalkStore = create&lt;DogWalkStore&gt;((set) =&gt; ({
+export const useDogWalkStore = create<DogWalkStore>((set) => ({
   dogWalks: mockData,
-  addDogWalk: (dogWalk) =&gt; set((state) =&gt; ({
+  addDogWalk: (dogWalk) => set((state) => ({
     dogWalks: [...state.dogWalks, { ...dogWalk, id: Date.now().toString() }]
   })),
-  removeDogWalk: (id) =&gt; set((state) =&gt; ({
-    dogWalks: state.dogWalks.filter((walk) =&gt; walk.id !== id)
+  removeDogWalk: (id) => set((state) => ({
+    dogWalks: state.dogWalks.filter((walk) => walk.id !== id)
   }))
 }));
-

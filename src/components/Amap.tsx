@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 import { DogWalk } from '../types/dogWalk';
 
@@ -9,19 +8,19 @@ interface AmapProps {
 declare global {
   interface Window {
     AMap: any;
-    initAMap: () =&gt; void;
+    initAMap: () => void;
   }
 }
 
 export function Amap({ dogWalks }: AmapProps) {
-  const mapRef = useRef&lt;HTMLDivElement&gt;(null);
-  const mapInstanceRef = useRef&lt;any&gt;(null);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
 
-  useEffect(() =&gt; {
+  useEffect(() => {
     if (!window.AMap) {
       const script = document.createElement('script');
       script.type = 'text/javascript';
-      script.src = 'https://webapi.amap.com/maps?v=2.0&amp;key=YOUR_AMAP_KEY';
+      script.src = 'https://webapi.amap.com/maps?v=2.0&key=YOUR_AMAP_KEY';
       script.onload = initMap;
       document.body.appendChild(script);
     } else {
@@ -44,7 +43,7 @@ export function Amap({ dogWalks }: AmapProps) {
     function addMarkers() {
       if (!mapInstanceRef.current) return;
       
-      dogWalks.forEach((walk) =&gt; {
+      dogWalks.forEach((walk) => {
         const marker = new window.AMap.Marker({
           position: [walk.longitude, walk.latitude],
           title: `${walk.userName} - ${walk.dogName}`,
@@ -56,16 +55,16 @@ export function Amap({ dogWalks }: AmapProps) {
         
         const infoWindow = new window.AMap.InfoWindow({
           content: `
-            &lt;div style="padding: 10px;"&gt;
-              &lt;h3 style="margin: 0 0 8px 0;"&gt;${walk.userName}&lt;/h3&gt;
-              &lt;p style="margin: 4px 0;"&gt;🐕 ${walk.dogName} (${walk.dogType})&lt;/p&gt;
-              &lt;p style="margin: 4px 0;"&gt;📍 ${walk.location}&lt;/p&gt;
-              &lt;p style="margin: 4px 0;"&gt;📅 ${walk.date} ${walk.time}&lt;/p&gt;
-            &lt;/div&gt;
+            <div style="padding: 10px;">
+              <h3 style="margin: 0 0 8px 0;">${walk.userName}</h3>
+              <p style="margin: 4px 0;">🐕 ${walk.dogName} (${walk.dogType})</p>
+              <p style="margin: 4px 0;">📍 ${walk.location}</p>
+              <p style="margin: 4px 0;">📅 ${walk.date} ${walk.time}</p>
+            </div>
           `
         });
 
-        marker.on('click', () =&gt; {
+        marker.on('click', () => {
           infoWindow.open(mapInstanceRef.current, marker.getPosition());
         });
 
@@ -73,7 +72,7 @@ export function Amap({ dogWalks }: AmapProps) {
       });
     }
 
-    return () =&gt; {
+    return () => {
       if (mapInstanceRef.current) {
         mapInstanceRef.current.destroy();
       }
@@ -81,10 +80,9 @@ export function Amap({ dogWalks }: AmapProps) {
   }, [dogWalks]);
 
   return (
-    &lt;div
+    <div
       ref={mapRef}
       style={{ width: '100%', height: '400px', borderRadius: '12px' }}
-    /&gt;
+    />
   );
 }
-
