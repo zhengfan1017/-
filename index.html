@@ -1,14 +1,13 @@
-
-&lt;!doctype html&gt;
-&lt;html lang="zh-CN"&gt;
-  &lt;head&gt;
-    &lt;meta charset="UTF-8" /&gt;
-    &lt;link rel="icon" type="image/svg+xml" href="/favicon.svg" /&gt;
-    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
-    &lt;title&gt;🐕 遛狗伙伴&lt;/title&gt;
-    &lt;script type="module"&gt;
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🐕 遛狗伙伴</title>
+    <script type="module">
       if (import.meta.hot?.on) {
-        import.meta.hot.on('vite:error', (error) =&gt; {
+        import.meta.hot.on('vite:error', (error) => {
           if (error.err) {
             console.error(
               [error.err.message, error.err.frame].filter(Boolean).join('\n'),
@@ -16,11 +15,10 @@
           }
         })
       }
-    &lt;/script&gt;
-  &lt;/head&gt;
-  &lt;body&gt;
-    &lt;div id="root"&gt;&lt;/div&gt;
-    &lt;script type="module" src="/src/main.tsx"&gt;&lt;/script&gt;
-  &lt;/body&gt;
-&lt;/html&gt;
-
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
