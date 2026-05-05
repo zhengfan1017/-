@@ -20,7 +20,7 @@ export function Amap({ dogWalks }: AmapProps) {
     if (!window.AMap) {
       const script = document.createElement('script');
       script.type = 'text/javascript';
-      script.src = 'https://webapi.amap.com/maps?v=2.0&key=YOUR_AMAP_KEY';
+      script.src = 'https://webapi.amap.com/maps?v=2.0&key=37c80d68fb16c2c0414980d05d533d3d';
       script.onload = initMap;
       document.body.appendChild(script);
     } else {
