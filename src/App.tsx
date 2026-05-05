@@ -1,17 +1,16 @@
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from '@/pages/Home';
-import Quiz from '@/pages/Quiz';
-import Result from '@/pages/Result';
+import { DogWalkList } from './pages/DogWalkList';
+import { PublishDogWalk } from './pages/PublishDogWalk';
 
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/quiz" element={<Quiz />} />
-        <Route path="/result" element={<Result />} />
-      </Routes>
-    </Router>
+    &lt;Router&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;DogWalkList /&gt;} /&gt;
+        &lt;Route path="/publish" element={&lt;PublishDogWalk /&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/Router&gt;
   );
 }
+
