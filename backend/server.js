@@ -5,7 +5,13 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Origin'],
+}));
+
 app.use(express.json({ limit: '10mb' }));
 
 let knowledgeBase = [
@@ -28,6 +34,7 @@ const mockVectorStore = {
 };
 
 app.post('/api/chat', async (req, res) => {
+  console.log('Received chat request:', req.body);
   try {
     const { message } = req.body;
     

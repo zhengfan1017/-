@@ -44,7 +44,10 @@ const ChatInterface = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'}/api/chat`, {
+      const apiUrl = process.env.VITE_API_BASE_URL || 'http://localhost:3001';
+      console.log('API URL:', apiUrl);
+      
+      const response = await fetch(`${apiUrl}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,7 +58,14 @@ const ChatInterface = () => {
         }),
       });
 
+      console.log('Response status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
+      console.log('Response data:', data);
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -66,9 +76,10 @@ const ChatInterface = () => {
 
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
+      console.error('Fetch error:', error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: '网络错误，请稍后重试。',
+        content: `网络错误，请稍后重试。错误详情：${(error as Error).message}`,
         isUser: false,
         timestamp: new Date(),
       };
