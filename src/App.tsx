@@ -35,7 +35,7 @@ function App() {
               >
                 <span className="flex items-center gap-2">
                   <MessageSquare className="w-4 h-4" />
-                  客服对话
+                  RAG客服
                 </span>
               </button>
               <button
@@ -76,7 +76,7 @@ function App() {
               >
                 <span className="flex items-center gap-2">
                   <MessageSquare className="w-4 h-4" />
-                  客服对话
+                  RAG客服
                 </span>
               </button>
               <button
