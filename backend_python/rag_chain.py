@@ -7,14 +7,28 @@ import shutil
 from pathlib import Path
 from typing import List, Optional
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv
+import chromadb
+from chromadb.utils import embedding_functions
 
 load_dotenv()
+
+
+class ChromadbEmbeddingAdapter:
+    """适配 chromadb embedding 函数以符合 langchain 接口"""
+    def __init__(self, chromadb_ef):
+        self.chromadb_ef = chromadb_ef
+    
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+        return self.chromadb_ef(texts)
+    
+    def embed_query(self, text: str) -> List[float]:
+        return self.chromadb_ef([text])[0]
 
 
 class RAGChain:
@@ -31,18 +45,25 @@ class RAGChain:
         try:
             print("正在初始化 LangChain RAG 系统...")
 
-            # 初始化 Embeddings 模型
-            self.embeddings = OpenAIEmbeddings(
-                model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"),
-                openai_api_key=os.getenv("OPENAI_API_KEY"),
-                openai_api_base=os.getenv("OPENAI_API_BASE", "https://api.deepseek.com/v1")
-            )
-
-            # 初始化向量数据库
+            # 使用 chromadb 的默认 embedding 函数
             persist_directory = os.getenv("VECTOR_STORE_DIR", "./vector_store")
+            chromadb_ef = embedding_functions.DefaultEmbeddingFunction()
+            
+            # 创建适配器
+            self.embeddings = ChromadbEmbeddingAdapter(chromadb_ef)
+            
+            client = chromadb.PersistentClient(path=persist_directory)
+            collection = client.get_or_create_collection(
+                name="knowledge_base",
+                embedding_function=chromadb_ef
+            )
+            
+            # 初始化向量数据库（使用 chromadb 客户端和 embedding）
             self.vectorstore = Chroma(
-                persist_directory=persist_directory,
-                embedding_function=self.embeddings
+                client=client,
+                collection_name="knowledge_base",
+                embedding_function=self.embeddings,
+                persist_directory=persist_directory
             )
 
             # 初始化 LLM
@@ -157,10 +178,20 @@ class RAGChain:
     def clear_knowledge_base(self):
         """清空知识库"""
         try:
-            self.vectorstore.delete_collection()
+            persist_directory = os.getenv("VECTOR_STORE_DIR", "./vector_store")
+            chromadb_ef = embedding_functions.DefaultEmbeddingFunction()
+            self.embeddings = ChromadbEmbeddingAdapter(chromadb_ef)
+            client = chromadb.PersistentClient(path=persist_directory)
+            client.delete_collection(name="knowledge_base")
+            collection = client.create_collection(
+                name="knowledge_base",
+                embedding_function=chromadb_ef
+            )
             self.vectorstore = Chroma(
-                persist_directory=os.getenv("VECTOR_STORE_DIR", "./vector_store"),
-                embedding_function=self.embeddings
+                client=client,
+                collection_name="knowledge_base",
+                embedding_function=self.embeddings,
+                persist_directory=persist_directory
             )
             print("知识库已清空")
         except Exception as e:
