@@ -66,7 +66,7 @@ const ChatInterface = () => {
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: data.reply || '抱歉，我暂时无法回答您的问题。',
+        content: data.answer || '抱歉，我暂时无法回答您的问题。',
         isUser: false,
         timestamp: new Date(),
       };
