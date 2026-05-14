@@ -50,8 +50,7 @@ const ChatInterface = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: userMessage.content,
-          history: messages,
+          question: userMessage.content,
         }),
       });
 
