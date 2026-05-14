@@ -33,6 +33,9 @@ export default defineConfig({
     'process.env': process.env
   },
   server: {
+    watch: {
+      ignored: ['**/backend_python/**']
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:8000',
