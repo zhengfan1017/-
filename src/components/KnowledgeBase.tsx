@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Upload, FileText, AlertCircle, CheckCircle, File, X } from 'lucide-react';
 
 interface UploadedFile {
+  file: File;
   name: string;
   size: number;
   status: 'pending' | 'uploading' | 'success' | 'error';
@@ -17,6 +18,7 @@ const KnowledgeBase = () => {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
     const newFiles = selectedFiles.map(file => ({
+      file: file,
       name: file.name,
       size: file.size,
       status: 'pending' as const
@@ -46,11 +48,10 @@ const KnowledgeBase = () => {
     setMessage('');
     setFiles(prev => prev.map(f => ({ ...f, status: 'uploading' })));
 
-    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     const formData = new FormData();
 
-    for (const file of input.files || []) {
-      formData.append('files', file);
+    for (const fileObj of pendingFiles) {
+      formData.append('files', fileObj.file);
     }
 
     try {
