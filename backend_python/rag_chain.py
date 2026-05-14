@@ -94,7 +94,11 @@ class RAGChain:
             length_function=len
         )
 
-        docs = text_splitter.create_documents(texts, metadata=metadata or [])
+        # 创建 Document 对象
+        docs = []
+        for i, text in enumerate(texts):
+            doc_metadata = metadata[i] if metadata and i < len(metadata) else {}
+            docs.append(Document(page_content=text, metadata=doc_metadata))
 
         # 添加到向量数据库
         self.vectorstore.add_documents(docs)
