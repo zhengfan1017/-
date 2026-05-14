@@ -30,7 +30,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-rag_system = None
+rag_system = RAGChain()
 upload_dir = Path("uploads")
 upload_dir.mkdir(exist_ok=True)
 
@@ -42,18 +42,6 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     answer: str
     sources: List[dict]
-
-
-@app.on_event("startup")
-async def startup_event():
-    """应用启动时初始化 RAG 系统"""
-    global rag_system
-    try:
-        rag_system = RAGChain()
-        print("✅ RAG 系统初始化完成")
-    except Exception as e:
-        print(f"❌ RAG 系统初始化失败: {e}")
-        raise
 
 
 @app.get("/")
@@ -69,9 +57,6 @@ async def root():
 @app.get("/api/health")
 async def health_check():
     """健康检查"""
-    if rag_system is None:
-        raise HTTPException(status_code=503, detail="RAG 系统未初始化")
-
     stats = rag_system.get_stats()
     return {
         "status": "ok",
@@ -86,9 +71,6 @@ async def upload_documents(files: List[UploadFile] = File(...)):
     上传文档接口
     支持 .txt, .md, .docx, .pdf 格式
     """
-    if rag_system is None:
-        raise HTTPException(status_code=503, detail="RAG 系统未初始化")
-
     if not files:
         raise HTTPException(status_code=400, detail="请上传至少一个文件")
 
@@ -98,21 +80,17 @@ async def upload_documents(files: List[UploadFile] = File(...)):
 
     for file in files:
         try:
-            # 检查文件格式
             ext = Path(file.filename).suffix.lower()
             if ext not in supported_formats:
                 error_files.append(f"{file.filename} (不支持的格式)")
                 continue
 
-            # 保存文件
             file_path = upload_dir / file.filename
             with open(file_path, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
 
-            # 解析文档
             content = DocumentParser.parse(str(file_path))
 
-            # 添加到知识库
             metadata = [{
                 "source": file.filename,
                 "type": ext[1:]
@@ -140,9 +118,6 @@ async def chat(request: ChatRequest):
     问答接口
     根据已上传的文档回答问题
     """
-    if rag_system is None:
-        raise HTTPException(status_code=503, detail="RAG 系统未初始化")
-
     if not request.question.strip():
         raise HTTPException(status_code=400, detail="问题不能为空")
 
@@ -157,9 +132,6 @@ async def chat(request: ChatRequest):
 @app.delete("/api/knowledge-base")
 async def clear_knowledge_base():
     """清空知识库"""
-    if rag_system is None:
-        raise HTTPException(status_code=503, detail="RAG 系统未初始化")
-
     rag_system.clear_knowledge_base()
 
     return {
@@ -174,5 +146,5 @@ if __name__ == "__main__":
         "main:app",
         host="0.0.0.0",
         port=8000,
-        reload=True
+        reload=False
     )

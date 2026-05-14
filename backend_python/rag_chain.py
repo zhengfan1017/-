@@ -38,35 +38,36 @@ class RAGChain:
         self.embeddings = None
         self.vectorstore = None
         self.qa_chain = None
-        self._initialize()
+        self.chromadb_ef = None
+        self._initialized = False
+        self._initializing = False
 
-    def _initialize(self):
-        """初始化 Embeddings 和向量存储"""
+    def _ensure_initialized(self):
+        """确保系统已初始化"""
+        if self._initialized or self._initializing:
+            return
+        
+        self._initializing = True
         try:
             print("正在初始化 LangChain RAG 系统...")
-
-            # 使用 chromadb 的默认 embedding 函数
-            persist_directory = os.getenv("VECTOR_STORE_DIR", "./vector_store")
-            chromadb_ef = embedding_functions.DefaultEmbeddingFunction()
             
-            # 创建适配器
-            self.embeddings = ChromadbEmbeddingAdapter(chromadb_ef)
+            persist_directory = os.getenv("VECTOR_STORE_DIR", "./vector_store")
+            self.chromadb_ef = embedding_functions.DefaultEmbeddingFunction()
+            self.embeddings = ChromadbEmbeddingAdapter(self.chromadb_ef)
             
             client = chromadb.PersistentClient(path=persist_directory)
             collection = client.get_or_create_collection(
                 name="knowledge_base",
-                embedding_function=chromadb_ef
+                embedding_function=self.chromadb_ef
             )
             
-            # 初始化向量数据库（使用 chromadb 客户端和 embedding）
             self.vectorstore = Chroma(
                 client=client,
                 collection_name="knowledge_base",
                 embedding_function=self.embeddings,
                 persist_directory=persist_directory
             )
-
-            # 初始化 LLM
+            
             llm = ChatOpenAI(
                 model=os.getenv("MODEL_NAME", "deepseek-chat"),
                 openai_api_key=os.getenv("OPENAI_API_KEY"),
@@ -74,7 +75,6 @@ class RAGChain:
                 temperature=float(os.getenv("TEMPERATURE", 0.7))
             )
 
-            # 创建 QA 链
             prompt_template = """你是一个专业的客服助手。根据以下参考资料回答用户问题。
 
 参考资料：
@@ -97,31 +97,32 @@ class RAGChain:
                 chain_type_kwargs={"prompt": PROMPT}
             )
 
+            self._initialized = True
             print("LangChain RAG 系统初始化完成！")
 
         except Exception as e:
             print(f"初始化错误: {e}")
+            self._initializing = False
             raise
 
     def add_documents(self, texts: List[str], metadata: Optional[List[dict]] = None) -> int:
         """添加文档到向量数据库"""
         if not texts:
             return 0
+        
+        self._ensure_initialized()
 
-        # 文本分块
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=int(os.getenv("CHUNK_SIZE", 500)),
             chunk_overlap=int(os.getenv("CHUNK_OVERLAP", 50)),
             length_function=len
         )
 
-        # 创建 Document 对象
         docs = []
         for i, text in enumerate(texts):
             doc_metadata = metadata[i] if metadata and i < len(metadata) else {}
             docs.append(Document(page_content=text, metadata=doc_metadata))
 
-        # 添加到向量数据库
         self.vectorstore.add_documents(docs)
         self.vectorstore.persist()
 
@@ -130,6 +131,8 @@ class RAGChain:
 
     def query(self, question: str) -> dict:
         """查询问答"""
+        self._ensure_initialized()
+        
         if not self.qa_chain:
             return {
                 "answer": "系统未初始化，请稍后重试",
@@ -139,7 +142,6 @@ class RAGChain:
         try:
             result = self.qa_chain({"query": question})
 
-            # 提取来源文档
             sources = []
             if result.get("source_documents"):
                 for doc in result["source_documents"]:
@@ -163,6 +165,8 @@ class RAGChain:
     def get_stats(self) -> dict:
         """获取知识库统计信息"""
         try:
+            if not self.vectorstore:
+                return {"total_documents": 0, "status": "not_initialized"}
             collection = self.vectorstore._collection
             count = collection.count()
             return {
@@ -177,15 +181,14 @@ class RAGChain:
 
     def clear_knowledge_base(self):
         """清空知识库"""
+        self._ensure_initialized()
         try:
             persist_directory = os.getenv("VECTOR_STORE_DIR", "./vector_store")
-            chromadb_ef = embedding_functions.DefaultEmbeddingFunction()
-            self.embeddings = ChromadbEmbeddingAdapter(chromadb_ef)
             client = chromadb.PersistentClient(path=persist_directory)
             client.delete_collection(name="knowledge_base")
             collection = client.create_collection(
                 name="knowledge_base",
-                embedding_function=chromadb_ef
+                embedding_function=self.chromadb_ef
             )
             self.vectorstore = Chroma(
                 client=client,
