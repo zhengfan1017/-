@@ -97,6 +97,20 @@ class SimpleVectorStore:
     def _collection(self):
         """模拟 chromadb collection"""
         return self
+    
+    def as_retriever(self, search_kwargs=None):
+        """返回检索器"""
+        from langchain_core.retrievers import BaseRetriever
+        
+        class SimpleRetriever(BaseRetriever):
+            vectorstore: object
+            search_kwargs: dict
+            
+            def _get_relevant_documents(self, query):
+                k = self.search_kwargs.get("k", 3)
+                return self.vectorstore.similarity_search(query, k=k)
+        
+        return SimpleRetriever(vectorstore=self, search_kwargs=search_kwargs or {})
 
 
 class RAGChain:
