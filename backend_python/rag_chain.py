@@ -7,28 +7,14 @@ import shutil
 from pathlib import Path
 from typing import List, Optional
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_openai import ChatOpenAI
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv
-import chromadb
-from chromadb.utils import embedding_functions
 
 load_dotenv()
-
-
-class ChromadbEmbeddingAdapter:
-    """适配 chromadb embedding 函数以符合 langchain 接口"""
-    def __init__(self, chromadb_ef):
-        self.chromadb_ef = chromadb_ef
-    
-    def embed_documents(self, texts: List[str]) -> List[List[float]]:
-        return self.chromadb_ef(texts)
-    
-    def embed_query(self, text: str) -> List[float]:
-        return self.chromadb_ef([text])[0]
 
 
 class RAGChain:
@@ -38,7 +24,6 @@ class RAGChain:
         self.embeddings = None
         self.vectorstore = None
         self.qa_chain = None
-        self.chromadb_ef = None
         self._initialized = False
         self._initializing = False
 
@@ -50,24 +35,23 @@ class RAGChain:
         self._initializing = True
         try:
             print("正在初始化 LangChain RAG 系统...")
-            
+
+            # 使用 OpenAI Embeddings (通过 DeepSeek API)
             persist_directory = os.getenv("VECTOR_STORE_DIR", "./vector_store")
-            self.chromadb_ef = embedding_functions.DefaultEmbeddingFunction()
-            self.embeddings = ChromadbEmbeddingAdapter(self.chromadb_ef)
-            
-            client = chromadb.PersistentClient(path=persist_directory)
-            collection = client.get_or_create_collection(
-                name="knowledge_base",
-                embedding_function=self.chromadb_ef
+            self.embeddings = OpenAIEmbeddings(
+                model="text-embedding-3-small",
+                openai_api_key=os.getenv("OPENAI_API_KEY"),
+                openai_api_base=os.getenv("OPENAI_API_BASE", "https://api.deepseek.com/v1")
             )
             
+            # 初始化向量数据库
             self.vectorstore = Chroma(
-                client=client,
                 collection_name="knowledge_base",
                 embedding_function=self.embeddings,
                 persist_directory=persist_directory
             )
             
+            # 初始化 LLM
             llm = ChatOpenAI(
                 model=os.getenv("MODEL_NAME", "deepseek-chat"),
                 openai_api_key=os.getenv("OPENAI_API_KEY"),
@@ -75,6 +59,7 @@ class RAGChain:
                 temperature=float(os.getenv("TEMPERATURE", 0.7))
             )
 
+            # 自定义 Prompt
             prompt_template = """你是一个专业的客服助手。根据以下参考资料回答用户问题。
 
 参考资料：
@@ -89,6 +74,7 @@ class RAGChain:
                 input_variables=["context", "question"]
             )
 
+            # 创建检索问答链
             self.qa_chain = RetrievalQA.from_chain_type(
                 llm=llm,
                 chain_type="stuff",
@@ -112,17 +98,20 @@ class RAGChain:
         
         self._ensure_initialized()
 
+        # 文本分割
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=int(os.getenv("CHUNK_SIZE", 500)),
             chunk_overlap=int(os.getenv("CHUNK_OVERLAP", 50)),
             length_function=len
         )
 
+        # 创建文档对象
         docs = []
         for i, text in enumerate(texts):
             doc_metadata = metadata[i] if metadata and i < len(metadata) else {}
             docs.append(Document(page_content=text, metadata=doc_metadata))
 
+        # 添加到向量库
         self.vectorstore.add_documents(docs)
         self.vectorstore.persist()
 
@@ -140,8 +129,10 @@ class RAGChain:
             }
 
         try:
+            # 执行查询
             result = self.qa_chain({"query": question})
 
+            # 格式化来源文档
             sources = []
             if result.get("source_documents"):
                 for doc in result["source_documents"]:
@@ -167,8 +158,8 @@ class RAGChain:
         try:
             if not self.vectorstore:
                 return {"total_documents": 0, "status": "not_initialized"}
-            collection = self.vectorstore._collection
-            count = collection.count()
+            # 获取向量库中的文档数量
+            count = self.vectorstore._collection.count()
             return {
                 "total_documents": count,
                 "status": "ok"
@@ -183,15 +174,13 @@ class RAGChain:
         """清空知识库"""
         self._ensure_initialized()
         try:
+            # 删除向量数据库存储目录
             persist_directory = os.getenv("VECTOR_STORE_DIR", "./vector_store")
-            client = chromadb.PersistentClient(path=persist_directory)
-            client.delete_collection(name="knowledge_base")
-            collection = client.create_collection(
-                name="knowledge_base",
-                embedding_function=self.chromadb_ef
-            )
+            if os.path.exists(persist_directory):
+                shutil.rmtree(persist_directory)
+            
+            # 重新初始化向量库
             self.vectorstore = Chroma(
-                client=client,
                 collection_name="knowledge_base",
                 embedding_function=self.embeddings,
                 persist_directory=persist_directory
