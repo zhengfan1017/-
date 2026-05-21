@@ -17,7 +17,7 @@ CORS(app, resources={
     }
 })
 
-DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "2a85c025526d427bb6fc55944777bc82")
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "sk-a9415763b09249c8a41086547e517f45")
 DEEPSEEK_API_BASE = "https://api.deepseek.com"
 MODEL_NAME = "deepseek-chat"
 
