@@ -1,6 +1,6 @@
 import type { Question } from '@/types';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = '/api';
 
 export async function generateQuiz(): Promise<Question[]> {
   try {
@@ -12,7 +12,8 @@ export async function generateQuiz(): Promise<Question[]> {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to generate quiz');
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      throw new Error(errorData.error || 'Failed to generate quiz');
     }
 
     const data = await response.json();

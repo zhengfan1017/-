@@ -9,7 +9,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={
+    r"/api/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
 
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "2a85c025526d427bb6fc55944777bc82")
 DEEPSEEK_API_BASE = "https://api.deepseek.com"
@@ -78,14 +84,17 @@ def generate_quiz_questions():
             else:
                 return {"error": "无法解析题目格式"}
         else:
-            return {"error": f"API错误: {response.status_code}"}
+            return {"error": f"API错误: {response.status_code}, {response.text}"}
             
     except Exception as e:
         return {"error": str(e)}
 
-@app.route('/api/generate-quiz', methods=['POST'])
+@app.route('/api/generate-quiz', methods=['POST', 'OPTIONS'])
 def generate_quiz():
     """生成测验题目"""
+    if request.method == 'OPTIONS':
+        return '', 200
+    
     result = generate_quiz_questions()
     
     if "error" in result:
@@ -93,5 +102,15 @@ def generate_quiz():
     else:
         return jsonify(result)
 
+@app.route('/health', methods=['GET'])
+def health():
+    """健康检查"""
+    return jsonify({"status": "ok", "message": "API服务运行正常"})
+
 if __name__ == '__main__':
+    print("="*60)
+    print("  碳纤维复合材料出题助手 - 后端服务")
+    print("  API服务地址: http://localhost:5000")
+    print("  DeepSeek API: 已配置")
+    print("="*60)
     app.run(host='0.0.0.0', port=5000, debug=True)
