@@ -1,86 +1,99 @@
-
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQuizStore } from '@/hooks/useQuizStore';
-import { Sparkles, Wand2 } from 'lucide-react';
+import { generateQuiz } from '@/services/api';
+import { Loader2 } from 'lucide-react';
 
-const SortingHat = () => {
-  return (
-    <div className="relative">
-      <div className="animate-bounce">
-        <div className="text-8xl md:text-9xl">🧙‍♂️</div>
-      </div>
-      <div className="absolute -top-2 -right-2 animate-pulse">
-        <Sparkles className="h-8 w-8 text-yellow-400" />
-      </div>
-    </div>
-  );
-};
+export default function Home() {
+  const navigate = useNavigate();
+  const { setQuestions, setLoading, setError, resetQuiz } = useQuizStore();
 
-const Home = () => {
-  const resetQuiz = useQuizStore((state) => state.resetQuiz);
-
-  const handleStart = () => {
-    resetQuiz();
+  const handleStartQuiz = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      resetQuiz();
+      
+      const questions = await generateQuiz();
+      setQuestions(questions);
+      navigate('/quiz');
+    } catch (error) {
+      setError('生成题目失败，请检查后端服务是否启动');
+      setLoading(false);
+    }
   };
 
+  const { isLoading } = useQuizStore();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 flex items-center justify-center p-4">
-      <div className="max-w-3xl w-full">
-        <div className="text-center space-y-8">
-          <div className="space-y-4">
-            <SortingHat />
-            <h1 className="text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-500 to-amber-300 drop-shadow-lg">
-              霍格沃茨
-            </h1>
-            <p className="text-2xl md:text-3xl text-amber-100 tracking-wider">
-              分院帽测试器
-            </p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-6">
+      <div className="max-w-4xl w-full">
+        <div className="text-center mb-12">
+          <div className="inline-block p-4 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-lg flex items-center justify-center">
+              <span className="text-3xl font-bold text-white">CF</span>
+            </div>
           </div>
+          
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 tracking-tight">
+            碳纤维复合材料
+          </h1>
+          <h2 className="text-3xl md:text-4xl font-light text-blue-400 mb-6">
+            知识测验系统
+          </h2>
+          
+          <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-8">
+            测试你对碳纤维复合材料的专业知识，涵盖材料特性、制备工艺、
+            应用领域等多个方面。共10道选择题，AI智能出题。
+          </p>
 
-          <div className="bg-slate-900/70 backdrop-blur-sm rounded-3xl p-8 border-2 border-amber-500/30 shadow-2xl shadow-amber-500/10">
-            <p className="text-amber-100 text-lg md:text-xl leading-relaxed mb-6">
-              "让我看看……啊，很难呐。你很勇敢，对不对？也很聪明，有天赋，而且渴望证明自己……
-              那你想去哪里呢？"
-            </p>
-            <p className="text-amber-300/80 text-sm italic">
-              —— 分院帽
-            </p>
-          </div>
+          <button
+            onClick={handleStartQuiz}
+            disabled={isLoading}
+            className="group relative inline-flex items-center gap-3 px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="w-6 h-6 animate-spin" />
+                <span>正在生成题目...</span>
+              </>
+            ) : (
+              <>
+                <span className="text-xl">开始测验</span>
+                <svg className="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </>
+            )}
+          </button>
 
-          <div className="space-y-4">
-            <Link to="/quiz" onClick={handleStart}>
-              <button className="group relative inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-white text-xl font-bold rounded-2xl shadow-xl shadow-amber-500/30 transform hover:scale-105 transition-all duration-300 overflow-hidden">
-                <Wand2 className="h-7 w-7 group-hover:rotate-12 transition-transform" />
-                <span>开始测试</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-              </button>
-            </Link>
-            <p className="text-amber-200/70 text-sm">
-              回答 12 道问题，发现你属于哪个学院 ✨
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-8">
-            {[
-              { emoji: '🦁', name: '格兰芬多' },
-              { emoji: '🐍', name: '斯莱特林' },
-              { emoji: '🦅', name: '拉文克劳' },
-              { emoji: '🦡', name: '赫奇帕奇' }
-            ].map((house, index) => (
-              <div
-                key={house.name}
-                className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-4 border border-slate-700/50 hover:border-amber-500/50 transition-all hover:scale-105"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="text-4xl mb-2">{house.emoji}</div>
-                <div className="text-amber-200 text-sm font-medium">{house.name}</div>
-              </div>
-            ))}
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+            <div className="p-6 rounded-xl bg-gray-800/50 border border-gray-700">
+              <div className="text-3xl mb-3">📚</div>
+              <h3 className="text-white font-semibold mb-2">材料特性</h3>
+              <p className="text-gray-400 text-sm">了解碳纤维的结构与性能</p>
+            </div>
+            <div className="p-6 rounded-xl bg-gray-800/50 border border-gray-700">
+              <div className="text-3xl mb-3">⚙️</div>
+              <h3 className="text-white font-semibold mb-2">制备工艺</h3>
+              <p className="text-gray-400 text-sm">掌握生产制造流程</p>
+            </div>
+            <div className="p-6 rounded-xl bg-gray-800/50 border border-gray-700">
+              <div className="text-3xl mb-3">🚀</div>
+              <h3 className="text-white font-semibold mb-2">应用领域</h3>
+              <p className="text-gray-400 text-sm">探索各行业应用场景</p>
+            </div>
           </div>
         </div>
+
+        <div className="text-center text-gray-500 text-sm">
+          <p>Powered by DeepSeek AI • Built with React + Flask</p>
+        </div>
+      </div>
+
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl"></div>
       </div>
     </div>
   );
-};
-
-export default Home;
+}

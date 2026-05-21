@@ -1,174 +1,162 @@
-
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuizStore } from '@/hooks/useQuizStore';
-import { QUESTIONS } from '@/utils/questions';
-import { HOUSES, House } from '@/utils/houses';
-import { ArrowLeft, ArrowRight, Check, Wand2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 
-const Quiz = () => {
+export default function Quiz() {
   const navigate = useNavigate();
-  const [isTransitioning, setIsTransitioning] = useState(false);
-
   const {
-    answers,
+    questions,
     currentQuestion,
+    answers,
     setAnswer,
-    setCurrentQuestion,
+    nextQuestion,
+    prevQuestion,
     isComplete
   } = useQuizStore();
 
   useEffect(() => {
-    if (isComplete()) {
-      navigate('/result');
+    if (questions.length === 0) {
+      navigate('/');
     }
-  }, [answers, isComplete, navigate]);
+  }, [questions, navigate]);
 
-  const question = QUESTIONS[currentQuestion];
-  const selectedAnswer = answers[question.id];
-  const progress = ((currentQuestion + 1) / QUESTIONS.length) * 100;
+  if (questions.length === 0) {
+    return null;
+  }
 
-  const handleOptionClick = (house: House) => {
-    setAnswer(question.id, house);
+  const question = questions[currentQuestion];
+  const progress = ((currentQuestion + 1) / questions.length) * 100;
+
+  const handleOptionClick = (option: string) => {
+    setAnswer(currentQuestion, option);
   };
 
-  const handleNext = () => {
-    if (selectedAnswer && currentQuestion < QUESTIONS.length - 1) {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setCurrentQuestion(currentQuestion + 1);
-        setIsTransitioning(false);
-      }, 200);
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentQuestion > 0) {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setCurrentQuestion(currentQuestion - 1);
-        setIsTransitioning(false);
-      }, 200);
-    }
-  };
-
-  const handleFinish = () => {
+  const handleSubmit = () => {
     if (isComplete()) {
       navigate('/result');
     }
   };
+
+  const optionKeys = ['A', 'B', 'C', 'D'] as const;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-8 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
-          <div className="flex justify-between items-center mb-3">
-            <span className="text-amber-300 font-medium">
-              问题 {currentQuestion + 1} / {QUESTIONS.length}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-white">
+              碳纤维复合材料知识测验
+            </h2>
+            <span className="text-gray-400">
+              {currentQuestion + 1} / {questions.length}
             </span>
-            <button
-              onClick={() => navigate('/')}
-              className="text-amber-400/70 hover:text-amber-400 text-sm transition-colors"
-            >
-              返回首页
-            </button>
           </div>
-          <div className="h-3 bg-slate-800 rounded-full overflow-hidden">
+          
+          <div className="w-full bg-gray-700 rounded-full h-2">
             <div
-              className="h-full bg-gradient-to-r from-amber-500 to-yellow-500 transition-all duration-500 rounded-full"
+              className="bg-blue-500 h-2 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
-            />
+            ></div>
           </div>
         </div>
 
-        <div
-          className={`transition-opacity duration-200 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}
-        >
-          <div className="bg-slate-900/80 backdrop-blur-sm rounded-3xl p-6 md:p-10 border-2 border-amber-500/30 shadow-2xl shadow-purple-500/10">
-            <div className="flex items-center gap-3 mb-6">
-              <Wand2 className="h-7 w-7 text-amber-400" />
-              <h2 className="text-xl md:text-2xl text-amber-100 font-bold leading-relaxed">
-                {question.text}
-              </h2>
-            </div>
-
-            <div className="space-y-3">
-              {question.options.map((option, index) => {
-                const houseData = HOUSES[option.house];
-                const isSelected = selectedAnswer === option.house;
-
-                return (
-                  <button
-                    key={option.id}
-                    onClick={() => handleOptionClick(option.house)}
-                    className={`w-full text-left p-4 md:p-5 rounded-2xl transition-all duration-300 border-2 ${
-                      isSelected
-                        ? 'border-amber-400 bg-amber-500/20 shadow-lg shadow-amber-500/30'
-                        : 'border-slate-700/50 bg-slate-800/50 hover:bg-slate-700/50 hover:border-amber-500/50'
-                    }`}
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="text-3xl">{houseData.emoji}</span>
-                        <span className={`text-base md:text-lg ${isSelected ? 'text-amber-100 font-semibold' : 'text-slate-200'}`}>
-                          {option.text}
-                        </span>
-                      </div>
-                      {isSelected && <Check className="h-6 w-6 text-amber-400" />}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="flex justify-between items-center mt-8 pt-6 border-t border-slate-700/50">
-              <button
-                onClick={handlePrev}
-                disabled={currentQuestion === 0}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all ${
-                  currentQuestion === 0
-                    ? 'opacity-50 cursor-not-allowed text-slate-500'
-                    : 'text-amber-300 hover:bg-slate-800 hover:text-amber-200'
-                }`}
-              >
-                <ArrowLeft className="h-5 w-5" />
-                <span>上一题</span>
-              </button>
-
-              {currentQuestion === QUESTIONS.length - 1 ? (
-                <button
-                  onClick={handleFinish}
-                  disabled={!selectedAnswer}
-                  className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold transition-all ${
-                    selectedAnswer
-                      ? 'bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-white shadow-lg shadow-amber-500/30'
-                      : 'opacity-50 cursor-not-allowed bg-slate-700 text-slate-400'
-                  }`}
-                >
-                  <span>查看结果</span>
-                  <ArrowRight className="h-5 w-5" />
-                </button>
-              ) : (
-                <button
-                  onClick={handleNext}
-                  disabled={!selectedAnswer}
-                  className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold transition-all ${
-                    selectedAnswer
-                      ? 'bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-white shadow-lg shadow-amber-500/30'
-                      : 'opacity-50 cursor-not-allowed bg-slate-700 text-slate-400'
-                  }`}
-                >
-                  <span>下一题</span>
-                  <ArrowRight className="h-5 w-5" />
-                </button>
-              )}
-            </div>
+        <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl p-8 border border-gray-700 shadow-2xl">
+          <div className="mb-8">
+            <span className="inline-block px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm font-medium mb-4">
+              第 {currentQuestion + 1} 题
+            </span>
+            <h3 className="text-xl md:text-2xl text-white leading-relaxed">
+              {question.question}
+            </h3>
           </div>
+
+          <div className="space-y-4">
+            {optionKeys.map((key) => {
+              const isSelected = answers[currentQuestion] === key;
+              return (
+                <button
+                  key={key}
+                  onClick={() => handleOptionClick(key)}
+                  className={`w-full p-4 rounded-xl border-2 text-left transition-all duration-200 ${
+                    isSelected
+                      ? 'border-blue-500 bg-blue-500/10 text-white'
+                      : 'border-gray-600 bg-gray-700/50 text-gray-300 hover:border-gray-500 hover:bg-gray-700'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <span className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${
+                      isSelected
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-600 text-gray-300'
+                    }`}>
+                      {isSelected ? <Check className="w-5 h-5" /> : key}
+                    </span>
+                    <span className="text-lg">{question.options[key]}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="mt-8 flex items-center justify-between">
+          <button
+            onClick={prevQuestion}
+            disabled={currentQuestion === 0}
+            className="flex items-center gap-2 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            <span>上一题</span>
+          </button>
+
+          {currentQuestion === questions.length - 1 ? (
+            <button
+              onClick={handleSubmit}
+              disabled={!isComplete()}
+              className="flex items-center gap-2 px-8 py-3 bg-green-600 hover:bg-green-500 text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+            >
+              <span>提交测验</span>
+              <Check className="w-5 h-5" />
+            </button>
+          ) : (
+            <button
+              onClick={nextQuestion}
+              disabled={currentQuestion === questions.length - 1}
+              className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span>下一题</span>
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+
+        <div className="mt-8 flex justify-center gap-2 flex-wrap">
+          {questions.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                const store = useQuizStore.getState();
+                store.currentQuestion !== index && 
+                  useQuizStore.setState({ currentQuestion: index });
+              }}
+              className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${
+                answers[index]
+                  ? 'bg-blue-500 text-white'
+                  : currentQuestion === index
+                  ? 'bg-gray-600 text-white ring-2 ring-blue-500'
+                  : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+              }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-6 text-center text-gray-500 text-sm">
+          <p>已回答 {Object.keys(answers).length} / {questions.length} 题</p>
         </div>
       </div>
     </div>
   );
-};
-
-export default Quiz;
+}
