@@ -139,7 +139,7 @@ def main():
     parser.add_argument(
         "--image",
         type=str,
-        default=None,
+        default="./test.jpg",
         help="单张图片路径(single模式)",
     )
     parser.add_argument(
