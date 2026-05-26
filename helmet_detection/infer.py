@@ -43,8 +43,8 @@ def inference_single(predictor, image_path, output_dir=None):
     predictor.run()
     output_names = predictor.get_output_names()
     output_boxes = predictor.get_output_handle(output_names[0]).copy_to_cpu()
-    output_scores = predictor.get_output_handle(output_names[1]).copy_to_cpu()
-    results = postprocess(output_boxes, output_scores, img.shape[:2])
+    output_num = predictor.get_output_handle(output_names[1]).copy_to_cpu()
+    results = postprocess(output_boxes, output_num, img.shape[:2])
     end_time = time.time()
     infer_time = (end_time - start_time) * 1000
     print(f"推理时间: {infer_time:.2f} ms")
@@ -101,8 +101,8 @@ def inference_camera(predictor, camera_id=0):
         predictor.run()
         output_names = predictor.get_output_names()
         output_boxes = predictor.get_output_handle(output_names[0]).copy_to_cpu()
-        output_scores = predictor.get_output_handle(output_names[1]).copy_to_cpu()
-        results = postprocess(output_boxes, output_scores, frame.shape[:2])
+        output_num = predictor.get_output_handle(output_names[1]).copy_to_cpu()
+        results = postprocess(output_boxes, output_num, frame.shape[:2])
         frame = visualize(frame, results)
         fps = 1 / (time.time() - start)
         cv2.putText(
@@ -193,5 +193,5 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    main()
 

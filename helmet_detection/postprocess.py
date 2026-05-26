@@ -3,13 +3,22 @@ import numpy as np
 from config import Config
 
 
-def postprocess(boxes, scores, origin_shape):
+def postprocess(boxes, num_detections, origin_shape):
     results = []
-    for i in range(len(scores)):
-        score = scores[i][1]
-        cls_id = int(scores[i][0])
+    num_detections = int(num_detections[0]) if hasattr(num_detections, '__len__') else int(num_detections)
+    if num_detections == 0:
+        return results
+    
+    boxes_data = boxes[0]
+    for i in range(num_detections):
+        cls_id = int(boxes_data[i * 6])
+        score = boxes_data[i * 6 + 1]
+        x1 = boxes_data[i * 6 + 2]
+        y1 = boxes_data[i * 6 + 3]
+        x2 = boxes_data[i * 6 + 4]
+        y2 = boxes_data[i * 6 + 5]
+        
         if score >= Config.CONF_THRESHOLD:
-            x1, y1, x2, y2 = boxes[i]
             h, w = origin_shape
             scale_y = h / Config.INPUT_SIZE[0]
             scale_x = w / Config.INPUT_SIZE[1]
