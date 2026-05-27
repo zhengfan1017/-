@@ -9,14 +9,16 @@ def postprocess(boxes, num_detections, origin_shape):
     if num_detections == 0:
         return results
     
-    boxes_data = boxes[0]
+    boxes_data = boxes
     for i in range(num_detections):
-        cls_id = int(boxes_data[i * 6])
-        score = boxes_data[i * 6 + 1]
-        x1 = boxes_data[i * 6 + 2]
-        y1 = boxes_data[i * 6 + 3]
-        x2 = boxes_data[i * 6 + 4]
-        y2 = boxes_data[i * 6 + 5]
+        if i >= len(boxes_data):
+            break
+        cls_id = int(boxes_data[i][0])
+        score = boxes_data[i][1]
+        x1 = boxes_data[i][2]
+        y1 = boxes_data[i][3]
+        x2 = boxes_data[i][4]
+        y2 = boxes_data[i][5]
         
         if score >= Config.CONF_THRESHOLD:
             h, w = origin_shape
