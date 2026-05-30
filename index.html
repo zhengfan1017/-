@@ -1,24 +1,1188 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Trae Project</title>
-    <script type="module">
-      if (import.meta.hot?.on) {
-        import.meta.hot.on('vite:error', (error) => {
-          if (error.err) {
-            console.error(
-              [error.err.message, error.err.frame].filter(Boolean).join('\n'),
-            )
-          }
-        })
-      }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rainbow Type - Kids English Typing Adventure</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --rainbow-1: #FF6B6B;
+            --rainbow-2: #FFA94D;
+            --rainbow-3: #FFE066;
+            --rainbow-4: #69DB7C;
+            --rainbow-5: #4DABF7;
+            --rainbow-6: #DA77F2;
+            --gold: #FFD700;
+            --coral: #FF6B6B;
+            --success: #51CF66;
+            --bg-dark: #1a1a2e;
+            --card-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            overflow: hidden;
+            background: var(--bg-dark);
+            min-height: 100vh;
+        }
+
+        .game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: linear-gradient(180deg,
+                var(--rainbow-1) 0%,
+                var(--rainbow-2) 16%,
+                var(--rainbow-3) 32%,
+                var(--rainbow-4) 48%,
+                var(--rainbow-5) 64%,
+                var(--rainbow-6) 80%,
+                #9F7AEA 100%
+            );
+            background-size: 100% 300%;
+            animation: rainbowShift 8s ease-in-out infinite;
+        }
+
+        @keyframes rainbowShift {
+            0%, 100% { background-position: 0% 0%; }
+            50% { background-position: 0% 50%; }
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50px;
+            filter: blur(2px);
+            animation: floatCloud 20s linear infinite;
+        }
+
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+        }
+
+        .cloud-1 {
+            width: 100px;
+            height: 40px;
+            top: 10%;
+            left: -100px;
+            animation-duration: 25s;
+        }
+        .cloud-1::before { width: 50px; height: 50px; top: -25px; left: 15px; }
+        .cloud-1::after { width: 35px; height: 35px; top: -15px; left: 50px; }
+
+        .cloud-2 {
+            width: 80px;
+            height: 32px;
+            top: 25%;
+            left: -80px;
+            animation-duration: 30s;
+            animation-delay: 5s;
+        }
+        .cloud-2::before { width: 40px; height: 40px; top: -20px; left: 10px; }
+        .cloud-2::after { width: 28px; height: 28px; top: -12px; left: 40px; }
+
+        .cloud-3 {
+            width: 120px;
+            height: 48px;
+            top: 5%;
+            left: -120px;
+            animation-duration: 22s;
+            animation-delay: 12s;
+        }
+        .cloud-3::before { width: 60px; height: 60px; top: -30px; left: 20px; }
+        .cloud-3::after { width: 42px; height: 42px; top: -18px; left: 60px; }
+
+        @keyframes floatCloud {
+            from { transform: translateX(0); }
+            to { transform: translateX(calc(100vw + 200px)); }
+        }
+
+        .star {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            animation: twinkle 2s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .level-badge {
+            background: var(--card-bg);
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.4rem;
+            color: var(--rainbow-5);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .level-badge span {
+            background: linear-gradient(135deg, var(--rainbow-5), var(--rainbow-6));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .timer-box {
+            background: var(--card-bg);
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.4rem;
+            color: var(--rainbow-2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-container {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            z-index: 100;
+        }
+
+        .progress-label {
+            color: white;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), #8CE99A);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        .flowers-container {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .flower-slot {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px dashed rgba(255,255,255,0.5);
+            transition: all 0.3s ease;
+        }
+
+        .flower-slot.earned {
+            background: var(--card-bg);
+            border: 3px solid var(--coral);
+            animation: flowerBounce 0.6s ease;
+        }
+
+        .flower-slot svg {
+            width: 32px;
+            height: 32px;
+            opacity: 0.3;
+        }
+
+        .flower-slot.earned svg {
+            opacity: 1;
+        }
+
+        @keyframes flowerBounce {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.3); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+
+        .game-area {
+            position: absolute;
+            top: 140px;
+            left: 0;
+            right: 0;
+            bottom: 150px;
+            overflow: hidden;
+        }
+
+        .falling-word {
+            position: absolute;
+            font-family: 'Fredoka One', cursive;
+            font-size: 2rem;
+            color: white;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.4);
+            padding: 10px 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            white-space: nowrap;
+            animation: wobble 3s ease-in-out infinite;
+            transition: transform 0.1s ease;
+        }
+
+        @keyframes wobble {
+            0%, 100% { transform: translateX(0) rotate(-1deg); }
+            50% { transform: translateX(10px) rotate(1deg); }
+        }
+
+        .falling-word .letter {
+            display: inline-block;
+            transition: all 0.15s ease;
+        }
+
+        .falling-word .letter.correct {
+            color: var(--success);
+            text-shadow: 0 0 20px var(--success), 0 0 40px var(--success);
+            transform: scale(1.2);
+        }
+
+        .falling-word .letter.wrong {
+            color: var(--coral);
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .input-area {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 150px;
+            background: linear-gradient(0deg, rgba(26,26,46,0.95), rgba(26,26,46,0.8));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .input-display {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            color: white;
+            letter-spacing: 8px;
+            min-height: 50px;
+            padding: 10px 30px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            border: 3px solid rgba(255,255,255,0.3);
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .input-hint {
+            color: rgba(255,255,255,0.7);
+            font-size: 1rem;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 170px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .btn {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.2rem;
+            padding: 15px 35px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, var(--success), #8CE99A);
+            color: white;
+            box-shadow: 0 6px 20px rgba(81, 207, 102, 0.4);
+        }
+
+        .btn-start:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(81, 207, 102, 0.5);
+        }
+
+        .btn-pause {
+            background: linear-gradient(135deg, var(--rainbow-2), #FFD43B);
+            color: white;
+            box-shadow: 0 6px 20px rgba(255, 169, 77, 0.4);
+        }
+
+        .btn-pause:hover {
+            transform: translateY(-3px);
+        }
+
+        .btn-stop {
+            background: linear-gradient(135deg, var(--coral), #FF8787);
+            color: white;
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-stop:hover {
+            transform: translateY(-3px);
+        }
+
+        .menu-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(26, 26, 46, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            backdrop-filter: blur(10px);
+        }
+
+        .menu-overlay.hidden {
+            display: none;
+        }
+
+        .menu-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 4rem;
+            background: linear-gradient(135deg, var(--rainbow-1), var(--rainbow-2), var(--rainbow-3), var(--rainbow-4), var(--rainbow-5), var(--rainbow-6));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: titlePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .menu-subtitle {
+            color: rgba(255,255,255,0.8);
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+        }
+
+        .menu-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 280px;
+        }
+
+        .celebration-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(26, 26, 46, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .celebration-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .certificate {
+            background: linear-gradient(135deg, #FFF9E6, #FFF3CC);
+            padding: 50px 80px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4), inset 0 0 30px rgba(255,215,0,0.3);
+            border: 8px solid var(--gold);
+            position: relative;
+            transform: scale(0);
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .celebration-overlay.active .certificate {
+            transform: scale(1);
+        }
+
+        .certificate::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 3px solid var(--gold);
+            border-radius: 12px;
+            pointer-events: none;
+        }
+
+        .cert-header {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+
+        .cert-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2rem;
+            color: var(--rainbow-5);
+            margin-bottom: 20px;
+        }
+
+        .cert-text {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .cert-flowers {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .cert-flowers svg {
+            width: 40px;
+            height: 40px;
+        }
+
+        .btn-play-again {
+            background: linear-gradient(135deg, var(--rainbow-5), var(--rainbow-6));
+            color: white;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.3rem;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-play-again:hover {
+            transform: scale(1.1);
+        }
+
+        .firework {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            animation: fireworkExplode 1s ease-out forwards;
+        }
+
+        @keyframes fireworkExplode {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+
+        .sparkle {
+            position: absolute;
+            pointer-events: none;
+            animation: sparkleFade 0.6s ease-out forwards;
+        }
+
+        @keyframes sparkleFade {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        .level-up-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 150;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .level-up-overlay.active {
+            opacity: 1;
+        }
+
+        .level-up-text {
+            font-family: 'Fredoka One', cursive;
+            font-size: 5rem;
+            color: var(--gold);
+            text-shadow: 0 0 30px var(--gold), 0 0 60px var(--gold);
+            animation: levelUpBounce 0.8s ease;
+        }
+
+        @keyframes levelUpBounce {
+            0% { transform: scale(0) rotate(-10deg); }
+            50% { transform: scale(1.3) rotate(5deg); }
+            70% { transform: scale(0.9) rotate(-2deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="cloud cloud-3"></div>
+
+        <div class="header">
+            <div class="level-badge">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#FFD700"/>
+                </svg>
+                Level <span id="levelDisplay">1</span>
+            </div>
+            <div class="timer-box">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span id="timerDisplay">00:00</span>
+            </div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-label">Words: <span id="wordCount">0</span>/50</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="flowers-container" id="flowersContainer">
+            <div class="flower-slot" data-level="1">
+                <svg viewBox="0 0 24 24" fill="#FF6B6B">
+                    <circle cx="12" cy="8" r="4"/>
+                    <circle cx="8" cy="12" r="4"/>
+                    <circle cx="16" cy="12" r="4"/>
+                    <circle cx="10" cy="16" r="4"/>
+                    <circle cx="14" cy="16" r="4"/>
+                    <circle cx="12" cy="12" r="3" fill="#FFE066"/>
+                </svg>
+            </div>
+            <div class="flower-slot" data-level="2">
+                <svg viewBox="0 0 24 24" fill="#FF6B6B">
+                    <circle cx="12" cy="8" r="4"/>
+                    <circle cx="8" cy="12" r="4"/>
+                    <circle cx="16" cy="12" r="4"/>
+                    <circle cx="10" cy="16" r="4"/>
+                    <circle cx="14" cy="16" r="4"/>
+                    <circle cx="12" cy="12" r="3" fill="#FFE066"/>
+                </svg>
+            </div>
+            <div class="flower-slot" data-level="3">
+                <svg viewBox="0 0 24 24" fill="#FF6B6B">
+                    <circle cx="12" cy="8" r="4"/>
+                    <circle cx="8" cy="12" r="4"/>
+                    <circle cx="16" cy="12" r="4"/>
+                    <circle cx="10" cy="16" r="4"/>
+                    <circle cx="14" cy="16" r="4"/>
+                    <circle cx="12" cy="12" r="3" fill="#FFE066"/>
+                </svg>
+            </div>
+            <div class="flower-slot" data-level="4">
+                <svg viewBox="0 0 24 24" fill="#FF6B6B">
+                    <circle cx="12" cy="8" r="4"/>
+                    <circle cx="8" cy="12" r="4"/>
+                    <circle cx="16" cy="12" r="4"/>
+                    <circle cx="10" cy="16" r="4"/>
+                    <circle cx="14" cy="16" r="4"/>
+                    <circle cx="12" cy="12" r="3" fill="#FFE066"/>
+                </svg>
+            </div>
+            <div class="flower-slot" data-level="5">
+                <svg viewBox="0 0 24 24" fill="#FF6B6B">
+                    <circle cx="12" cy="8" r="4"/>
+                    <circle cx="8" cy="12" r="4"/>
+                    <circle cx="16" cy="12" r="4"/>
+                    <circle cx="10" cy="16" r="4"/>
+                    <circle cx="14" cy="16" r="4"/>
+                    <circle cx="12" cy="12" r="3" fill="#FFE066"/>
+                </svg>
+            </div>
+            <div class="flower-slot" data-level="6">
+                <svg viewBox="0 0 24 24" fill="#FF6B6B">
+                    <circle cx="12" cy="8" r="4"/>
+                    <circle cx="8" cy="12" r="4"/>
+                    <circle cx="16" cy="12" r="4"/>
+                    <circle cx="10" cy="16" r="4"/>
+                    <circle cx="14" cy="16" r="4"/>
+                    <circle cx="12" cy="12" r="3" fill="#FFE066"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="game-area" id="gameArea"></div>
+
+        <div class="controls" id="gameControls">
+            <button class="btn btn-start" id="btnStart">Start</button>
+            <button class="btn btn-pause hidden" id="btnPause">Pause</button>
+            <button class="btn btn-stop hidden" id="btnStop">Stop</button>
+        </div>
+
+        <div class="input-area">
+            <div class="input-display" id="inputDisplay"></div>
+            <div class="input-hint">Type the falling words!</div>
+        </div>
+
+        <div class="menu-overlay" id="menuOverlay">
+            <h1 class="menu-title">Rainbow Type</h1>
+            <p class="menu-subtitle">Kids English Typing Adventure</p>
+            <div class="menu-controls">
+                <button class="btn btn-start" id="btnPlay">Play</button>
+            </div>
+        </div>
+
+        <div class="level-up-overlay" id="levelUpOverlay">
+            <div class="level-up-text" id="levelUpText">Level Up!</div>
+        </div>
+
+        <div class="celebration-overlay" id="celebrationOverlay">
+            <div class="certificate">
+                <div class="cert-header">Congratulations!</div>
+                <div class="cert-title">Master Typist</div>
+                <div class="cert-text">You have completed all 6 levels!</div>
+                <div class="cert-flowers">
+                    <svg viewBox="0 0 24 24" fill="#FF6B6B"><circle cx="12" cy="8" r="4"/><circle cx="8" cy="12" r="4"/><circle cx="16" cy="12" r="4"/><circle cx="10" cy="16" r="4"/><circle cx="14" cy="16" r="4"/><circle cx="12" cy="12" r="3" fill="#FFE066"/></svg>
+                    <svg viewBox="0 0 24 24" fill="#FF6B6B"><circle cx="12" cy="8" r="4"/><circle cx="8" cy="12" r="4"/><circle cx="16" cy="12" r="4"/><circle cx="10" cy="16" r="4"/><circle cx="14" cy="16" r="4"/><circle cx="12" cy="12" r="3" fill="#FFE066"/></svg>
+                    <svg viewBox="0 0 24 24" fill="#FF6B6B"><circle cx="12" cy="8" r="4"/><circle cx="8" cy="12" r="4"/><circle cx="16" cy="12" r="4"/><circle cx="10" cy="16" r="4"/><circle cx="14" cy="16" r="4"/><circle cx="12" cy="12" r="3" fill="#FFE066"/></svg>
+                    <svg viewBox="0 0 24 24" fill="#FF6B6B"><circle cx="12" cy="8" r="4"/><circle cx="8" cy="12" r="4"/><circle cx="16" cy="12" r="4"/><circle cx="10" cy="16" r="4"/><circle cx="14" cy="16" r="4"/><circle cx="12" cy="12" r="3" fill="#FFE066"/></svg>
+                    <svg viewBox="0 0 24 24" fill="#FF6B6B"><circle cx="12" cy="8" r="4"/><circle cx="8" cy="12" r="4"/><circle cx="16" cy="12" r="4"/><circle cx="10" cy="16" r="4"/><circle cx="14" cy="16" r="4"/><circle cx="12" cy="12" r="3" fill="#FFE066"/></svg>
+                    <svg viewBox="0 0 24 24" fill="#FF6B6B"><circle cx="12" cy="8" r="4"/><circle cx="8" cy="12" r="4"/><circle cx="16" cy="12" r="4"/><circle cx="10" cy="16" r="4"/><circle cx="14" cy="16" r="4"/><circle cx="12" cy="12" r="3" fill="#FFE066"/></svg>
+                </div>
+                <button class="btn-play-again" id="btnPlayAgain">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const wordLists = {
+            1: ['cat', 'dog', 'sun', 'pen', 'cup', 'hat', 'bed', 'car', 'bus', 'red', 'box', 'fox', 'hen', 'pig', 'egg', 'ice', 'mud', 'net', 'owl', 'owl', 'rat', 'toy', 'van', 'web', 'yes', 'zip', 'bat', 'cow', 'dew', 'ear'],
+            2: ['book', 'tree', 'fish', 'bird', 'frog', 'duck', 'ball', 'star', 'moon', 'ship', 'cake', 'door', 'face', 'hand', 'jack', 'king', 'lamp', 'milk', 'nest', 'open', 'rain', 'sand', 'tail', 'walk', 'zinc', 'blue', 'city', 'dark', 'exit', 'fast'],
+            3: ['game', 'play', 'jump', 'swim', 'happy', 'music', 'color', 'shape', 'apple', 'beach', 'cloud', 'dance', 'eagle', 'flame', 'grape', 'horse', 'juice', 'kite', 'lemon', 'mango', 'night', 'ocean', 'piano', 'queen', 'river', 'sheep', 'tiger', 'uncle', 'voice', 'water'],
+            4: ['apple', 'banana', 'orange', 'school', 'family', 'friend', 'animal', 'bridge', 'castle', 'desert', 'energy', 'forest', 'garden', 'hammer', 'island', 'jungle', 'kitten', 'laptop', 'monkey', 'nature', 'planet', 'rabbit', 'sunset', 'temple', 'umbrella', 'village', 'whale', 'yellow', 'zebra', 'rocket'],
+            5: ['rainbow', 'purple', 'yellow', 'orange', 'teacher', 'student', 'brother', 'sister', 'picture', 'welcome', 'balance', 'camping', 'dolphin', 'elephant', 'fishing', 'giraffe', 'holiday', 'imagine', 'jacket', 'kitchen', 'librarian', 'mountain', 'notebook', 'orchard', 'penguin', 'quietly', 'raining', 'sandwich', 'together', 'violin'],
+            6: ['computer', 'keyboard', 'butterfly', 'adventure', 'celebrate', 'discovery', 'excellent', 'fantastic', 'beautiful', 'chocolate', 'dinosaur', 'elephant', 'flamingo', 'grateful', 'happiness', 'ignorant', 'jellyfish', 'knowledge', 'lightning', 'mysterious', 'nightmare', 'operation', 'pineapple', 'question', 'reindeer', 'saxophone', 'telescope', 'universe', 'vegetable', 'waterfall']
+        };
+
+        const levelConfig = {
+            1: { speed: 1.2, wordsToAdvance: 50 },
+            2: { speed: 1.6, wordsToAdvance: 50 },
+            3: { speed: 2.0, wordsToAdvance: 50 },
+            4: { speed: 2.5, wordsToAdvance: 50 },
+            5: { speed: 3.0, wordsToAdvance: 50 },
+            6: { speed: 3.5, wordsToAdvance: 50 }
+        };
+
+        class TypingGame {
+            constructor() {
+                this.level = 1;
+                this.wordsTyped = 0;
+                this.totalWordsTyped = 0;
+                this.flowersEarned = 0;
+                this.gameState = 'menu';
+                this.fallingWords = [];
+                this.currentWord = null;
+                this.currentInput = '';
+                this.startTime = null;
+                this.timerInterval = null;
+                this.animationId = null;
+                this.lastWordTime = 0;
+                this.wordInterval = 2000;
+
+                this.audioContext = null;
+
+                this.initElements();
+                this.initStars();
+                this.bindEvents();
+            }
+
+            initElements() {
+                this.gameArea = document.getElementById('gameArea');
+                this.inputDisplay = document.getElementById('inputDisplay');
+                this.levelDisplay = document.getElementById('levelDisplay');
+                this.timerDisplay = document.getElementById('timerDisplay');
+                this.wordCountDisplay = document.getElementById('wordCount');
+                this.progressFill = document.getElementById('progressFill');
+                this.menuOverlay = document.getElementById('menuOverlay');
+                this.celebrationOverlay = document.getElementById('celebrationOverlay');
+                this.levelUpOverlay = document.getElementById('levelUpOverlay');
+                this.levelUpText = document.getElementById('levelUpText');
+                this.gameControls = document.getElementById('gameControls');
+                this.btnStart = document.getElementById('btnStart');
+                this.btnPause = document.getElementById('btnPause');
+                this.btnStop = document.getElementById('btnStop');
+                this.btnPlay = document.getElementById('btnPlay');
+                this.btnPlayAgain = document.getElementById('btnPlayAgain');
+                this.flowersContainer = document.getElementById('flowersContainer');
+            }
+
+            initStars() {
+                for (let i = 0; i < 30; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = Math.random() * 40 + '%';
+                    star.style.animationDelay = Math.random() * 2 + 's';
+                    star.style.transform = `scale(${0.5 + Math.random() * 0.5})`;
+                    document.querySelector('.game-container').appendChild(star);
+                }
+            }
+
+            initAudio() {
+                if (!this.audioContext) {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playSound(type) {
+                this.initAudio();
+                const ctx = this.audioContext;
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+
+                if (type === 'correct') {
+                    oscillator.frequency.setValueAtTime(523.25, ctx.currentTime);
+                    oscillator.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
+                    oscillator.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2);
+                    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.4);
+                } else if (type === 'error') {
+                    oscillator.frequency.setValueAtTime(200, ctx.currentTime);
+                    oscillator.frequency.setValueAtTime(150, ctx.currentTime + 0.1);
+                    gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.2);
+                } else if (type === 'levelup') {
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, i) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.frequency.value = freq;
+                        gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.15);
+                        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.15 + 0.3);
+                        osc.start(ctx.currentTime + i * 0.15);
+                        osc.stop(ctx.currentTime + i * 0.15 + 0.3);
+                    });
+                } else if (type === 'complete') {
+                    const melody = [523.25, 659.25, 783.99, 659.25, 783.99, 1046.50];
+                    melody.forEach((freq, i) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.frequency.value = freq;
+                        gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.2);
+                        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.2 + 0.4);
+                        osc.start(ctx.currentTime + i * 0.2);
+                        osc.stop(ctx.currentTime + i * 0.2 + 0.4);
+                    });
+                }
+            }
+
+            speakWord(word) {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(word);
+                    utterance.rate = 0.8;
+                    utterance.pitch = 1.1;
+                    speechSynthesis.speak(utterance);
+                }
+            }
+
+            bindEvents() {
+                this.btnPlay.addEventListener('click', () => this.startGame());
+                this.btnPlayAgain.addEventListener('click', () => this.resetGame());
+                this.btnStart.addEventListener('click', () => this.resumeGame());
+                this.btnPause.addEventListener('click', () => this.pauseGame());
+                this.btnStop.addEventListener('click', () => this.stopGame());
+
+                document.addEventListener('keydown', (e) => this.handleKeyPress(e));
+            }
+
+            startGame() {
+                this.menuOverlay.classList.add('hidden');
+                this.gameControls.classList.remove('hidden');
+                this.btnStart.classList.add('hidden');
+                this.btnPause.classList.remove('hidden');
+                this.btnStop.classList.remove('hidden');
+
+                this.gameState = 'playing';
+                this.startTime = Date.now();
+                this.updateTimer();
+                this.timerInterval = setInterval(() => this.updateTimer(), 1000);
+
+                this.spawnWord();
+                this.gameLoop();
+            }
+
+            pauseGame() {
+                if (this.gameState === 'playing') {
+                    this.gameState = 'paused';
+                    this.btnPause.textContent = 'Resume';
+                    cancelAnimationFrame(this.animationId);
+                    clearInterval(this.timerInterval);
+                } else if (this.gameState === 'paused') {
+                    this.gameState = 'playing';
+                    this.btnPause.textContent = 'Pause';
+                    this.timerInterval = setInterval(() => this.updateTimer(), 1000);
+                    this.gameLoop();
+                }
+            }
+
+            stopGame() {
+                this.gameState = 'menu';
+                this.resetState();
+                this.menuOverlay.classList.remove('hidden');
+                this.gameControls.classList.add('hidden');
+                this.btnStart.classList.remove('hidden');
+                this.btnPause.classList.add('hidden');
+                this.btnPause.textContent = 'Pause';
+                this.btnStop.classList.add('hidden');
+                this.clearGameArea();
+            }
+
+            resumeGame() {
+                this.gameState = 'playing';
+                this.btnStart.classList.add('hidden');
+                this.btnPause.classList.remove('hidden');
+                this.btnStop.classList.remove('hidden');
+                this.startTime = Date.now();
+                this.updateTimer();
+                this.timerInterval = setInterval(() => this.updateTimer(), 1000);
+                this.gameLoop();
+            }
+
+            resetGame() {
+                this.celebrationOverlay.classList.remove('active');
+                this.resetState();
+                this.clearGameArea();
+                this.startGame();
+            }
+
+            resetState() {
+                this.level = 1;
+                this.wordsTyped = 0;
+                this.totalWordsTyped = 0;
+                this.flowersEarned = 0;
+                this.currentWord = null;
+                this.currentInput = '';
+                this.fallingWords = [];
+
+                this.levelDisplay.textContent = '1';
+                this.wordCountDisplay.textContent = '0';
+                this.progressFill.style.width = '0%';
+                this.inputDisplay.textContent = '';
+
+                document.querySelectorAll('.flower-slot').forEach(slot => {
+                    slot.classList.remove('earned');
+                });
+
+                cancelAnimationFrame(this.animationId);
+                clearInterval(this.timerInterval);
+            }
+
+            clearGameArea() {
+                this.gameArea.innerHTML = '';
+                this.fallingWords = [];
+            }
+
+            updateTimer() {
+                const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const seconds = (elapsed % 60).toString().padStart(2, '0');
+                this.timerDisplay.textContent = `${minutes}:${seconds}`;
+            }
+
+            getRandomWord() {
+                const words = wordLists[this.level];
+                return words[Math.floor(Math.random() * words.length)];
+            }
+
+            spawnWord() {
+                if (this.gameState !== 'playing') return;
+
+                const word = this.getRandomWord();
+                const wordEl = document.createElement('div');
+                wordEl.className = 'falling-word';
+
+                word.split('').forEach(letter => {
+                    const span = document.createElement('span');
+                    span.className = 'letter';
+                    span.textContent = letter;
+                    wordEl.appendChild(span);
+                });
+
+                const areaWidth = this.gameArea.offsetWidth;
+                const wordWidth = word.length * 30;
+                const x = Math.random() * (areaWidth - wordWidth - 40) + 20;
+
+                wordEl.style.left = x + 'px';
+                wordEl.style.top = '-60px';
+
+                this.gameArea.appendChild(wordEl);
+
+                this.fallingWords.push({
+                    element: wordEl,
+                    word: word,
+                    y: -60,
+                    typedIndex: 0
+                });
+
+                this.currentWord = this.fallingWords[this.fallingWords.length - 1];
+            }
+
+            gameLoop() {
+                if (this.gameState !== 'playing') return;
+
+                const now = Date.now();
+                const config = levelConfig[this.level];
+
+                if (now - this.lastWordTime > this.wordInterval) {
+                    this.spawnWord();
+                    this.lastWordTime = now;
+                }
+
+                this.fallingWords.forEach((wordData, index) => {
+                    wordData.y += config.speed;
+                    wordData.element.style.top = wordData.y + 'px';
+
+                    if (wordData.y > this.gameArea.offsetHeight + 60) {
+                        wordData.element.remove();
+                        this.fallingWords.splice(index, 1);
+                        if (this.currentWord === wordData) {
+                            this.currentWord = this.fallingWords[0] || null;
+                            this.currentInput = '';
+                            this.inputDisplay.textContent = '';
+                        }
+                    }
+                });
+
+                this.animationId = requestAnimationFrame(() => this.gameLoop());
+            }
+
+            handleKeyPress(e) {
+                if (this.gameState !== 'playing') return;
+                if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+                const key = e.key.toLowerCase();
+
+                if (key.length !== 1 || !/^[a-z]$/.test(key)) return;
+
+                if (!this.currentWord) {
+                    this.currentWord = this.fallingWords[0];
+                }
+
+                if (!this.currentWord) return;
+
+                const expectedLetter = this.currentWord.word[this.currentInput.length];
+
+                if (key === expectedLetter) {
+                    this.currentInput += key;
+                    this.inputDisplay.textContent = this.currentInput;
+
+                    const letterEl = this.currentWord.element.querySelectorAll('.letter')[this.currentInput.length - 1];
+                    if (letterEl) {
+                        letterEl.classList.add('correct');
+                    }
+
+                    if (this.currentInput === this.currentWord.word) {
+                        this.wordCompleted();
+                    }
+                } else {
+                    this.playSound('error');
+                    const letterEl = this.currentWord.element.querySelectorAll('.letter')[this.currentInput.length];
+                    if (letterEl) {
+                        letterEl.classList.add('wrong');
+                        setTimeout(() => letterEl.classList.remove('wrong'), 300);
+                    }
+                }
+            }
+
+            wordCompleted() {
+                this.playSound('correct');
+                this.speakWord(this.currentWord.word);
+                this.createSparkles(this.currentWord.element);
+
+                this.wordsTyped++;
+                this.totalWordsTyped++;
+
+                this.wordCountDisplay.textContent = this.wordsTyped;
+                this.progressFill.style.width = (this.wordsTyped / 50 * 100) + '%';
+
+                this.currentWord.element.remove();
+                const idx = this.fallingWords.indexOf(this.currentWord);
+                if (idx > -1) {
+                    this.fallingWords.splice(idx, 1);
+                }
+
+                this.currentWord = this.fallingWords[0] || null;
+                this.currentInput = '';
+                this.inputDisplay.textContent = '';
+
+                if (this.wordsTyped >= 50) {
+                    this.levelCompleted();
+                }
+            }
+
+            createSparkles(element) {
+                const rect = element.getBoundingClientRect();
+                const gameRect = this.gameArea.getBoundingClientRect();
+
+                for (let i = 0; i < 12; i++) {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="#FFD700">
+                        <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/>
+                    </svg>`;
+                    sparkle.style.left = (rect.left - gameRect.left + rect.width / 2) + 'px';
+                    sparkle.style.top = (rect.top - gameRect.top + rect.height / 2) + 'px';
+                    sparkle.style.setProperty('--tx', (Math.random() - 0.5) * 150 + 'px');
+                    sparkle.style.setProperty('--ty', (Math.random() - 0.5) * 150 + 'px');
+                    this.gameArea.appendChild(sparkle);
+
+                    setTimeout(() => sparkle.remove(), 600);
+                }
+            }
+
+            levelCompleted() {
+                this.playSound('levelup');
+
+                this.flowersEarned++;
+                const flowerSlot = document.querySelector(`.flower-slot[data-level="${this.level}"]`);
+                if (flowerSlot) {
+                    flowerSlot.classList.add('earned');
+                }
+
+                this.levelUpText.textContent = `Level ${this.level} Complete!`;
+                this.levelUpOverlay.classList.add('active');
+
+                setTimeout(() => {
+                    this.levelUpOverlay.classList.remove('active');
+                }, 2000);
+
+                if (this.level >= 6) {
+                    this.gameComplete();
+                } else {
+                    this.level++;
+                    this.wordsTyped = 0;
+                    this.levelDisplay.textContent = this.level;
+                    this.wordCountDisplay.textContent = '0';
+                    this.progressFill.style.width = '0%';
+
+                    this.currentWord = null;
+                    this.currentInput = '';
+                    this.inputDisplay.textContent = '';
+                }
+            }
+
+            gameComplete() {
+                this.gameState = 'complete';
+                cancelAnimationFrame(this.animationId);
+                clearInterval(this.timerInterval);
+
+                this.playSound('complete');
+
+                this.celebrationOverlay.classList.add('active');
+
+                this.createFireworks();
+
+                setTimeout(() => {
+                    this.createFireworks();
+                }, 1000);
+            }
+
+            createFireworks() {
+                const colors = ['#FF6B6B', '#FFE066', '#69DB7C', '#4DABF7', '#DA77F2', '#FFD700'];
+
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const firework = document.createElement('div');
+                        firework.className = 'firework';
+                        firework.style.left = Math.random() * 80 + 10 + '%';
+                        firework.style.top = Math.random() * 50 + 20 + '%';
+                        firework.style.background = colors[Math.floor(Math.random() * colors.length)];
+                        firework.style.setProperty('--tx', (Math.random() - 0.5) * 300 + 'px');
+                        firework.style.setProperty('--ty', (Math.random() - 0.5) * 300 + 'px');
+                        this.celebrationOverlay.appendChild(firework);
+
+                        setTimeout(() => firework.remove(), 1000);
+                    }, i * 300);
+                }
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            new TypingGame();
+        });
     </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+</body>
 </html>
