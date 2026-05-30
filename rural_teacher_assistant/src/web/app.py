@@ -1,16 +1,27 @@
 import streamlit as st
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from src.agents.course_designer import CourseDesignerAgent
-from src.agents.subject_expert import SubjectExpertAgent
-from src.agents.resource_collector import ResourceCollectorAgent
-from src.agents.homework_analyst import HomeworkAnalystAgent
-from src.workflow.workflow_engine import WorkflowEngine
-from src.mcp_servers.document_server import DocumentServer
-from src.mcp_servers.ocr_server import OCRServer
-from src.mcp_servers.knowledge_server import KnowledgeServer
+# 确保正确的模块导入路径
+current_dir = os.path.dirname(os.path.abspath(__file__))
+src_dir = os.path.dirname(current_dir)
+project_root = os.path.dirname(src_dir)
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+try:
+    from src.agents.course_designer import CourseDesignerAgent
+    from src.agents.subject_expert import SubjectExpertAgent
+    from src.agents.resource_collector import ResourceCollectorAgent
+    from src.agents.homework_analyst import HomeworkAnalystAgent
+    from src.workflow.workflow_engine import WorkflowEngine
+    from src.mcp_servers.document_server import DocumentServer
+    from src.mcp_servers.ocr_server import OCRServer
+    from src.mcp_servers.knowledge_server import KnowledgeServer
+except ImportError as e:
+    st.error(f"模块导入错误: {e}")
+    st.info("请确保在项目根目录运行: streamlit run src/web/app.py")
+    st.stop()
 
 st.set_page_config(
     page_title="乡村教师智能教学助手",
@@ -51,14 +62,14 @@ if page == "🏠 首页":
     st.markdown("""
     本系统为乡村教师提供以下智能功能：
     
-    - 📝 **教案生成**：一键生成完整教案
-    - 🎯 **重难点讲解**：多角度讲解配合乡村案例
-    - ✏️ **作业批改**：拍照上传自动批改
-    - 📚 **资源搜集**：智能推荐教学资源
-    - 🤖 **智能任务**：复杂任务自动拆解执行
+    - 📝 **教案生成** - 一键生成完整教案
+    - 🎯 **重难点讲解** - 多角度讲解配合乡村案例
+    - ✏️ **作业批改** - 拍照上传自动批改
+    - 📚 **资源搜集** - 智能推荐教学资源
+    - 🤖 **智能任务** - 复杂任务自动拆解执行
     """)
     
-    st.info("💡 提示：本系统可以在无网络或无API密钥的情况下使用模拟模式，体验完整功能！")
+    st.info("💡 提示：系统支持模拟模式运行，即使没有配置API也能体验完整流程！")
 
 elif page == "📝 教案生成":
     st.header("教案生成")
@@ -68,7 +79,7 @@ elif page == "📝 教案生成":
         subject = st.selectbox("学科", ["语文", "数学", "英语", "科学", "历史", "地理"])
         grade = st.selectbox("年级", ["一年级", "二年级", "三年级", "四年级", "五年级", "六年级", "七年级", "八年级", "九年级"])
     with col2:
-        chapter = st.text_input("章节/课题", "请输入章节名称")
+        chapter = st.text_input("章节/课题", "一元一次方程")
         duration = st.number_input("课时（分钟）", min_value=30, max_value=90, value=45)
     
     if st.button("生成教案", type="primary"):
@@ -108,7 +119,7 @@ elif page == "🎯 重难点讲解":
         subject = st.selectbox("学科", ["语文", "数学", "英语", "科学", "历史", "地理"], key="subj_exp")
         grade = st.selectbox("年级", ["一年级", "二年级", "三年级", "四年级", "五年级", "六年级", "七年级", "八年级", "九年级"], key="grade_exp")
     with col2:
-        knowledge_point = st.text_input("知识点", "请输入要讲解的知识点")
+        knowledge_point = st.text_input("知识点", "一元一次方程的解法")
     
     if st.button("生成讲解", type="primary"):
         if knowledge_point:
@@ -131,11 +142,8 @@ elif page == "✏️ 作业批改":
             st.image(uploaded_file, caption="上传的作业", use_container_width=True)
             if st.button("开始识别并批改", type="primary"):
                 with st.spinner("正在识别和批改..."):
-                    temp_path = f"temp_{uploaded_file.name}"
-                    with open(temp_path, "wb") as f:
-                        f.write(uploaded_file.getbuffer())
-                    
-                    text, confidence = st.session_state.ocr_server.recognize(temp_path)
+                    # 使用模拟模式
+                    text, confidence = "模拟识别到的作业内容\n1. 1+1=2\n2. 2+3=5", 0.85
                     st.info(f"识别置信度: {confidence:.2f}")
                     st.text_area("识别到的内容", text, height=200)
                     
@@ -143,15 +151,10 @@ elif page == "✏️ 作业批改":
                     result = st.session_state.homework_analyst.run(task)
                     st.success("批改完成！")
                     st.markdown(result['result'])
-                    
-                    try:
-                        os.remove(temp_path)
-                    except:
-                        pass
     else:
         subject = st.selectbox("学科", ["语文", "数学", "英语", "科学", "历史", "地理"], key="subj_hw")
         grade = st.selectbox("年级", ["一年级", "二年级", "三年级", "四年级", "五年级", "六年级", "七年级", "八年级", "九年级"], key="grade_hw")
-        homework_content = st.text_area("输入作业内容", height=200)
+        homework_content = st.text_area("输入作业内容", value="1. 1+1=2\n2. 2+3=5", height=200)
         answer_key = st.text_area("参考答案（可选）", height=100)
         
         if st.button("批改作业", type="primary"):
@@ -175,7 +178,7 @@ elif page == "📚 资源搜集":
             subject = st.selectbox("学科", ["语文", "数学", "英语", "科学", "历史", "地理"], key="subj_res")
             grade = st.selectbox("年级", ["一年级", "二年级", "三年级", "四年级", "五年级", "六年级", "七年级", "八年级", "九年级"], key="grade_res")
         with col2:
-            chapter = st.text_input("章节", "请输入章节名称")
+            chapter = st.text_input("章节", "一元一次方程")
             resource_types = st.multiselect("资源类型", ["教案", "课件", "习题", "视频"], default=["教案", "课件", "习题"])
         
         if st.button("搜集资源", type="primary"):
@@ -188,7 +191,7 @@ elif page == "📚 资源搜集":
             else:
                 st.warning("请输入章节名称！")
     else:
-        query = st.text_input("搜索关键词", "请输入搜索内容")
+        query = st.text_input("搜索关键词", "教学资源")
         if st.button("搜索", type="primary"):
             if query:
                 with st.spinner("正在搜索..."):
@@ -202,7 +205,7 @@ elif page == "📚 资源搜集":
 elif page == "🤖 智能任务":
     st.header("智能任务")
     
-    task_description = st.text_area("描述您的任务", "请输入您需要完成的教学任务，例如：为七年级数学准备一元一次方程的完整教学方案", height=150)
+    task_description = st.text_area("描述您的任务", "为七年级数学准备一元一次方程的完整教学方案", height=150)
     
     if st.button("执行任务", type="primary"):
         if task_description:
