@@ -138,7 +138,7 @@ export default function Result() {
                       <div className={`font-semibold ${
                         result.is_correct ? 'text-green-400' : 'text-red-400'
                       }`}>
-                        {result.your_answer}：{questions[index].options[result.your_answer as keyof typeof questions[index]['options']] || '未作答'}
+                        {result.your_answer}：{(questions[index].options as Record<string, string>)[result.your_answer] || '未作答'}
                       </div>
                     </div>
                     
@@ -146,7 +146,7 @@ export default function Result() {
                       <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/20">
                         <div className="text-sm text-green-400 mb-1">正确答案</div>
                         <div className="font-semibold text-green-400">
-                          {result.correct_answer}：{questions[index].options[result.correct_answer as keyof typeof questions[index]['options']]}
+                          {result.correct_answer}：{(questions[index].options as Record<string, string>)[result.correct_answer]}
                         </div>
                       </div>
                     )}
